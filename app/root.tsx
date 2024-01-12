@@ -17,9 +17,7 @@ import {
 import { themeSessionResolver } from "./sessions.server";
 import clsx from "clsx";
 
-export const links: LinksFunction = () => [
-  { rel: "stylesheet", href: styles },
-];
+export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
 // Return the theme from the session storage using the loader
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -42,8 +40,14 @@ function App() {
         <PreventFlashOnWrongTheme ssrTheme={Boolean(data.theme)} />
         <Links />
       </head>
-      <body>
-        <Outlet />
+      <body className="flex flex-col min-h-screen">
+        <main className="p-8 flex-grow">
+          <Outlet />
+        </main>
+        <footer className="p-8 flex flex-row justify-between">
+          <h2>DEVELOPED BY TEAM TEMPESTS</h2>
+          <h2>WEC 2024</h2>
+        </footer>
         <ScrollRestoration />
         <Scripts />
         <LiveReload />
