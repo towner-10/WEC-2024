@@ -1,4 +1,9 @@
-import type { MetaFunction } from "@remix-run/node";
+import {
+  json,
+  type MetaFunction,
+} from "@remix-run/node";
+import { useLoaderData } from "@remix-run/react";
+import Heatmap from "~/components/heatmap";
 import { Button } from "~/components/ui/button";
 import {
   Card,
@@ -16,7 +21,15 @@ export const meta: MetaFunction = () => {
   ];
 };
 
+export async function loader() {
+  return json({
+    MAPBOX_TOKEN: process.env.MAPBOX_TOKEN,
+  });
+}
+
 export default function Index() {
+  const data = useLoaderData<typeof loader>();
+
   return (
     <div>
       <header>
@@ -30,7 +43,9 @@ export default function Index() {
               Natural disaster events at a glance.
             </CardDescription>
           </CardHeader>
-          <CardContent></CardContent>
+          <CardContent>
+            {data.MAPBOX_TOKEN && <Heatmap token={data.MAPBOX_TOKEN} />}
+          </CardContent>
         </Card>
         <div className="flex-col col-span-1 h-full space-y-4">
           <Card className="flex-grow">

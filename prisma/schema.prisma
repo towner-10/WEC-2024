@@ -22,6 +22,6 @@ model Disaster {
 }
 
 model DisasterType {
-  typeName String    @id
-  Disaster Disaster?
+  typeName String     @id
+  Disaster Disaster[]
 }
