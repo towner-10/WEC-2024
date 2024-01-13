@@ -17,9 +17,7 @@ import {
 import { themeSessionResolver } from "./sessions.server";
 import clsx from "clsx";
 
-export const links: LinksFunction = () => [
-  { rel: "stylesheet", href: styles },
-];
+export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
 // Return the theme from the session storage using the loader
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -43,10 +41,10 @@ function App() {
         <Links />
       </head>
       <body className="flex flex-col min-h-screen">
-        <main className="p-8 flex-grow">
+        <main className="pt-8 px-8 flex-grow">
           <Outlet />
         </main>
-        <footer className="p-8 flex flex-row justify-between">
+        <footer className="pb-4 px-8 flex flex-row justify-between tracking-wider font-bold text-sm">
           <h2>DEVELOPED BY TEAM TEMPESTS</h2>
           <h2>WEC 2024</h2>
         </footer>

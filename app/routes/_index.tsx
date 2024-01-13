@@ -11,6 +11,17 @@ import {
   CardHeader,
   CardTitle,
 } from "~/components/ui/card";
+import { Label } from "~/components/ui/label";
+import { Input } from "~/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/ui/select";
+import { Slider } from "~/components/ui/slider";
 
 export const meta: MetaFunction = () => {
   return [
@@ -35,7 +46,7 @@ export default function Index() {
   return (
     <>
       <header>
-        <h1>Welcome to the Tempests App!</h1>
+        <h1>Tempests</h1>
       </header>
       <div className="h-full p-4 grid grid-cols-4 gap-4">
         <Card className="col-span-3 h-full">
@@ -46,23 +57,66 @@ export default function Index() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {data.MAPBOX_TOKEN && <Heatmap token={data.MAPBOX_TOKEN} />}
+            {data.MAPBOX_TOKEN && (
+              <Heatmap
+                token={data.MAPBOX_TOKEN}
+                disasters={[]}
+              />
+            )}
           </CardContent>
         </Card>
         <div className="flex-col col-span-1 h-full space-y-4">
           <Card className="flex-grow">
             <CardHeader>
               <CardTitle>Filter Tools</CardTitle>
-              <CardDescription>
-                Find the exact event you are looking for!
-              </CardDescription>
+              <CardDescription>Quickly locate specific events</CardDescription>
             </CardHeader>
-            <CardContent></CardContent>
-            <CardFooter className="flex justify-between">
-              <Button>Filter</Button>
+            <CardContent className="flex flex-col space-y-4">
+              <Label>Name</Label>
+              <Input placeholder='For example, "Hurricane Dave"' />
+              <Label>Type</Label>
+              <Select>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Select an event type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    {/* TODO: Replace with unique list of types from database */}
+                    <SelectItem value="placeholder">
+                      Placeholder (REPLACE THIS!)
+                    </SelectItem>
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+              <Label>Region</Label>
+              <div className="flex space-x-4">
+                <Input placeholder="Lat. (°)" />
+                <Input placeholder="Long. (°)" />
+                <Input placeholder="Radius (km)" />
+              </div>
+              <Label>Intensity</Label>
+              <div className="flex space-x-4">
+                <Slider defaultValue={[5]} max={10} step={1} />
+                {/* TODO: Add text for the slider value and remove placeholder */}
+                <h3>2</h3>
+              </div>
+              <Label>Date</Label>
+              <div className="flex space-x-4 items-center">
+                <Input placeholder="MM" />
+                <h3>/</h3>
+                <Input placeholder="DD" />
+                <h3>/</h3>
+                <Input placeholder="YYYY" />
+              </div>
+            </CardContent>
+            <CardFooter className="flex justify-between gap-4">
+              <Button className="flex-grow" variant="secondary">
+                Reset filters
+              </Button>
+              <Button className="flex-grow">Filter results</Button>
             </CardFooter>
           </Card>
-          <Button className="w-full">New Event</Button>
+          <Button className="w-full">Add a new event</Button>
         </div>
       </div>
     </>

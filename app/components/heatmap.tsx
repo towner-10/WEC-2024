@@ -1,8 +1,10 @@
+import { Disaster } from "@prisma/client";
 import { Map } from "react-map-gl";
 import { Theme, useTheme } from "remix-themes";
 
 interface HeatmapProps {
   token: string;
+  disasters: Disaster[];
   children?: React.ReactNode;
 }
 
