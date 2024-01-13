@@ -1,5 +1,5 @@
 import { Disaster } from "@prisma/client";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import {
   CircleLayer,
   HeatmapLayer,
@@ -112,11 +112,12 @@ const heatmapLayer: HeatmapLayer = {
 };
 
 export default function Heatmap(props: HeatmapProps) {
+  const popupRef = useRef<mapboxgl.Popup>(null);
   const [theme] = useTheme();
   const [popupInfo, setPopupInfo] = useState<Disaster | null>(null);
 
   return (
-    <div className="h-[400px]">
+    <div className="h-[500px]">
       <Map
         mapboxAccessToken={props.token}
         initialViewState={{
@@ -136,10 +137,10 @@ export default function Heatmap(props: HeatmapProps) {
           const { features } = event;
 
           console.log(features);
-          if (features !== undefined && features.length > 0) {
+          if (features && features.length > 0) {
             if (
               features[0].geometry.type === "Point" &&
-              features[0].properties !== null
+              features[0].properties
             ) {
               // If it is a point, set the popup info
               const disaster: Disaster = {
@@ -151,10 +152,11 @@ export default function Heatmap(props: HeatmapProps) {
                 typeId: features[0].properties.typeId,
                 date: new Date(features[0].properties.date),
               };
+              return setPopupInfo(disaster);
+            }
+          }
 
-              setPopupInfo(disaster);
-            } else setPopupInfo(null);
-          } else setPopupInfo(null);
+          return setPopupInfo(null);
         }}
       >
         <Source
@@ -183,6 +185,7 @@ export default function Heatmap(props: HeatmapProps) {
         </Source>
         {popupInfo && (
           <Popup
+            ref={popupRef}
             longitude={Number(popupInfo.longitude)}
             latitude={Number(popupInfo.latitude)}
             anchor="bottom"
