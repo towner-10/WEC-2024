@@ -19,13 +19,14 @@ import {
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { Slider } from "~/components/ui/slider";
-import { ActionFunctionArgs, redirect } from "@remix-run/node";
+import { ActionFunctionArgs, MetaFunction, redirect } from "@remix-run/node";
 import { useFetcher } from "@remix-run/react";
 import prisma from "~/lib/db.server";
 
 export async function action({ request }: ActionFunctionArgs) {
   const body = await request.formData();
 
+  // Get form data
   const name = body.get("name");
   const type = body.get("type");
   const latitude = body.get("latitude");
@@ -33,12 +34,14 @@ export async function action({ request }: ActionFunctionArgs) {
   const intensity = body.get("intensity");
   const date = body.get("date");
 
+  // Check if all fields are provided
   if (!name || !type || !latitude || !longitude || !intensity || !date) {
     return redirect("/new", {
       status: 400,
     });
   }
 
+  // Try to create the disaster type and disaster
   try {
     const disasterType = await prisma.disasterType.upsert({
       create: {
@@ -65,6 +68,7 @@ export async function action({ request }: ActionFunctionArgs) {
       },
     });
   } catch (err) {
+    // If there is an error, return a 500
     console.error(err);
     return redirect("/new", {
       status: 500,
@@ -73,6 +77,12 @@ export async function action({ request }: ActionFunctionArgs) {
 
   return redirect("/");
 }
+
+export const meta: MetaFunction = () => {
+    return [
+      { title: "Tempests - New" },
+    ];
+  };
 
 export default function New() {
   const [statusMsg, setStatusMsg] = useState("");
