@@ -267,10 +267,8 @@ export default function Index() {
                           pass = false;
                       }
 
-
                       if (ddate != undefined) {
-                        if (ddate != disaster.date
-                        ) {
+                        if (ddate.getMonth() != disaster.date.getMonth() || ddate.getDay() != disaster.date.getDay() || ddate.getFullYear() != disaster.date.getFullYear()){
                           pass = false
                         }
                       }
