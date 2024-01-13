@@ -148,11 +148,12 @@ export default function Index() {
                   <SelectGroup>
                     {data.disasterTypes.map((disType) => {
                       return (
-                        <>
-                          <SelectItem value={disType.typeName}>
-                            {disType.typeName}
-                          </SelectItem>
-                        </>
+                        <SelectItem
+                          key={disType.typeName}
+                          value={disType.typeName}
+                        >
+                          {disType.typeName}
+                        </SelectItem>
                       );
                     })}
 
