@@ -24,7 +24,6 @@
     "@remix-run/react": "^2.5.0",
     "@remix-run/serve": "^2.5.0",
     "@types/mapbox-gl": "^2.7.19",
-    "child_process": "^1.0.2",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
     "csv-parser": "^3.0.0",
