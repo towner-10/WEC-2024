@@ -165,14 +165,14 @@ export default function New() {
           <div className="flex space-x-4">
             <Slider
               name="intensity"
-              value={intensity}
               onValueCommit={setIntensity}
               defaultValue={[5]}
               max={10}
+              min={0}
               step={1}
             />
             {/* TODO: Add text for the slider value and remove placeholder */}
-            <h3>2</h3>
+            <h3>{intensity}</h3>
           </div>
           <Popover>
             <PopoverTrigger asChild>
