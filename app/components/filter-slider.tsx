@@ -9,14 +9,25 @@ interface FilterSliderProps {
 }
 
 export default function FilterSlider(props: FilterSliderProps) {
-  const [value] = useState<number[]>([0, 10]);
+  const [value, setValue] = useState<number[]>([0, 10]);
 
   return (
-    <div className={cn("flex flex-row w-full", props.className)}>
+    <div
+      className={cn(
+        "flex flex-row w-full items-center justify-between",
+        props.className
+      )}
+    >
       <div className="flex-grow">
-        <Slider defaultValue={[0, 10]} max={10} step={1} value={value} />
+        <Slider
+          defaultValue={[0, 10]}
+          max={10}
+          step={1}
+          value={value}
+          onValueCommit={setValue}
+        />
       </div>
-      <div className="flex-shrink-0 w-8">{value}</div>
+      <h3 className="flex-shrink-0 w-8 pl-2">{value}</h3>
     </div>
   );
 }

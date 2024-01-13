@@ -22,7 +22,8 @@ import {
   SelectValue,
 } from "~/components/ui/select";
 import FilterSlider from "~/components/filter-slider";
-
+import prisma from "~/lib/db.server";
+import { Disaster } from "@prisma/client";
 
 export const meta: MetaFunction = () => {
   return [
@@ -36,13 +37,28 @@ export const links: LinksFunction = () => [
 ];
 
 export async function loader() {
+  const disasters = await prisma.disaster.findMany();
+
   return json({
     MAPBOX_TOKEN: process.env.MAPBOX_TOKEN,
+    disasters,
   });
 }
 
 export default function Index() {
   const data = useLoaderData<typeof loader>();
+
+  const disasters: Disaster[] = data.disasters.map((disaster) => {
+    return {
+      id: disaster.id,
+      date: new Date(disaster.date),
+      name: disaster.name,
+      intensity: disaster.intensity,
+      typeId: disaster.typeId,
+      latitude: disaster.latitude,
+      longitude: disaster.longitude,
+    };
+  });
 
   return (
     <>
@@ -58,11 +74,8 @@ export default function Index() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {data.MAPBOX_TOKEN && (
-              <Heatmap
-                token={data.MAPBOX_TOKEN}
-                disasters={[]}
-              />
+            {data.MAPBOX_TOKEN && data.disasters && (
+              <Heatmap token={data.MAPBOX_TOKEN} disasters={disasters} />
             )}
           </CardContent>
         </Card>
@@ -98,8 +111,6 @@ export default function Index() {
               <Label>Intensity</Label>
               <div className="flex space-x-4">
                 <FilterSlider />
-                {/* TODO: Add text for the slider value and remove placeholder */}
-                <h3>2</h3>
               </div>
               <Label>Date</Label>
               <div className="flex space-x-4 items-center">
