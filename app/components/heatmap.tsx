@@ -1,5 +1,5 @@
 import { Disaster } from "@prisma/client";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   CircleLayer,
   HeatmapLayer,
@@ -116,6 +116,10 @@ export default function Heatmap(props: HeatmapProps) {
   const popupRef = useRef<mapboxgl.Popup>(null);
   const [theme] = useTheme();
   const [popupInfo, setPopupInfo] = useState<Disaster | null>(null);
+
+  useEffect(() => {
+    console.log(props.disasters);
+  }, [props.disasters]);
 
   return (
     <div className="h-[500px]">
