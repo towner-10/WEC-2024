@@ -236,8 +236,7 @@ export default function Index() {
                     disasterRef.filter((disaster) => {
                       let pass = true;
                       if (dname != "") {
-                        if (!RegExp(disaster.name, "i").test(disaster.name))
-                          pass = false;
+                        if (!RegExp(dname, "i").test(disaster.name)) pass = false;
                       }
 
                       if (dtype != "any type" && dtype != "") {
@@ -274,7 +273,6 @@ export default function Index() {
                           pass = false
                         }
                       }
-                      if (pass) console.log('d');
                       return pass;
                     })
                   );
