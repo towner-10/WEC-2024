@@ -1,51 +1,61 @@
 const fs = require('fs');
 const csv = require('csv-parser');
-const { PrismaClient } = require('@prisma/client');
 
+// Middleware helper to insert data into the database
+const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
-// Function to insert data into the database
-async function insertData(data) {
-
+async function insertDisaster(data) {
   // Register unregistered disaster types 
   await prisma.disasterType.upsert({
-    create: {
+      create: {
       typeName: data['type']
-    },
-    update: {
+      },
+      update: {
       typeName: data['type']
-    },
-    where: { typeName: data['type'] }
+      },
+      where: { typeName: data['type'] }
   });
 
   // Get the disasterType
   const disasterType = await prisma.disasterType.findFirst({
-    where: {
+      where: {
       typeName: data['type'],
-    },
+      },
   });
 
+  // Format date (add time)
+  let formattedDate = data['date'] + "T00:00:00.000Z";
+
+  // Create new disaster
+  await prisma.disaster.create({
+      data: {
+          name: data['Name'],
+          longitude: Number.parseFloat(data['long']),
+          latitude: Number.parseFloat(data['lat']),
+          date: formattedDate,
+          intensity: Number.parseInt(data['intensity']),
+          dType: {
+              connect: {
+              typeName: disasterType.typeName,
+              }
+          }
+      }
+  });
+}
+
+// Function to insert data into the database
+async function insertData(data) {
+
+  // Reformat date
   let formattedDate = data['date'].split("/")
   formattedDate = formattedDate[2] +
     "-" + (formattedDate[0].length < 2 ? "0" : "") + formattedDate[0] +
     "-" + (formattedDate[1].length < 2 ? "0" : "") + formattedDate[1]
-  formattedDate = formattedDate + "T00:00:00.000Z";
+  data['date'] = formattedDate;
 
-  // Insert the disaster into the table
-  await prisma.disaster.create({
-    data: {
-      name: data['Name'],
-      longitude: Number.parseFloat(data['long']),
-      latitude: Number.parseFloat(data['lat']),
-      date: formattedDate,
-      intensity: Number.parseInt(data['intensity']),
-      dType: {
-        connect: {
-          typeName: disasterType.typeName,
-        }
-      }
-    }
-  });
+  // Insert data into the database
+  insertDisaster(data);
 }
 
 // Check if the database file exists
