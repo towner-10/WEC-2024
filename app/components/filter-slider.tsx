@@ -24,7 +24,7 @@ export default function FilterSlider(props: FilterSliderProps) {
           max={10}
           min={0}
           step={1}
-          onValueCommit={setValue}
+          onValueChange={setValue}
         />
       </div>
       <h3 className="flex-shrink-0 w-8 pl-2">{value}</h3>

@@ -165,7 +165,7 @@ export default function New() {
           <div className="flex space-x-4">
             <Slider
               name="intensity"
-              onValueCommit={setIntensity}
+              onValueChange={setIntensity}
               defaultValue={[5]}
               max={10}
               min={0}
