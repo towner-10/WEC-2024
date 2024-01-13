@@ -3,6 +3,7 @@ import { useLoaderData } from "@remix-run/react";
 import Heatmap from "~/components/heatmap";
 import mapboxStyles from "mapbox-gl/dist/mapbox-gl.css";
 import { Button } from "~/components/ui/button";
+import { format } from "date-fns";
 import {
   Card,
   CardContent,
@@ -27,6 +28,8 @@ import { useEffect, useState } from "react";
 import { ModeToggle } from "~/components/mode-toggle";
 import { cn } from "~/lib/utils";
 import { Slider } from "~/components/ui/slider";
+import { Popover, PopoverContent, PopoverTrigger } from "@radix-ui/react-popover";
+import { Calendar } from "~/components/ui/calendar";
 
 export const meta: MetaFunction = () => {
   return [
@@ -74,7 +77,7 @@ export default function Index() {
   const [dtype, setdtype] = useState("");
   const [dregion, setdregion] = useState(["", "", ""]);
   const [dintensity, setdintensity] = useState(0);
-  const [ddate, setddate] = useState("");
+  const [ddate, setddate] = useState<Date>();
   const [disasters, setDisasters] = useState<Disaster[]>([]);
 
   // Convert date strings to Date objects
@@ -180,11 +183,27 @@ export default function Index() {
               </div>
               <Label>Date</Label>
               <div className="flex space-x-4 items-center">
-                <Input placeholder="MM" />
-                <h3>/</h3>
-                <Input placeholder="DD" />
-                <h3>/</h3>
-                <Input placeholder="YYYY" />
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant={"outline"}
+                      className={cn(
+                        "w-[240px] justify-start text-left font-normal",
+                        !ddate && "text-muted-foreground"
+                      )}
+                    >
+                      {ddate ? format(ddate, "PPP") : <span>Pick a date</span>}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={ddate}
+                      onSelect={setddate}
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
               </div>
             </CardContent>
             <CardFooter className="flex justify-between gap-4">
@@ -215,12 +234,14 @@ export default function Index() {
                         if (dintensity != Number(disaster.intensity)) pass = false
                       }
 
-                      if (ddate != "") {
-                        if (new Date(ddate) != disaster.date) {
-                          pass = false
-                        } else console.log('a')
-                      }
 
+                      if (ddate != undefined) {
+                        if (ddate != disaster.date
+                        ) {
+                          pass = false
+                        }
+                      }
+                      if (pass) console.log('d');
                       return pass;
                     })
                   );
