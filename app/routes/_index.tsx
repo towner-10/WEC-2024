@@ -24,7 +24,7 @@ import {
 import FilterSlider from "~/components/filter-slider";
 import prisma from "~/lib/db.server";
 import { Disaster } from "@prisma/client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ModeToggle } from "~/components/mode-toggle";
 
 export const meta: MetaFunction = () => {
@@ -54,6 +54,7 @@ export default function Index() {
   const navigate = useNavigate();
   const [dname, setdname] = useState("");
   const [dtype, setdtype] = useState("");
+  const [disasters, setDisasters] = useState<Disaster[]>([]);
 
   const disasterRef: Disaster[] = data.disasters.map((disaster) => {
     return {
@@ -67,7 +68,9 @@ export default function Index() {
     };
   });
 
-  let disasters: Disaster[] = disasterRef.filter(() => true);
+  useEffect(() => {
+    setDisasters(disasterRef);
+  }, [disasterRef]);
 
   return (
     <>
@@ -77,8 +80,8 @@ export default function Index() {
         </h1>
         <ModeToggle />
       </header>
-      <div className="h-full p-4 grid grid-cols-4 gap-4">
-        <Card className="col-span-3 h-full">
+      <div className="h-full p-4 grid grid-cols-1 lg:grid-cols-4 gap-4">
+        <Card className="col-span-1 lg:col-span-3 h-full">
           <CardHeader>
             <CardTitle>Event Heatmap</CardTitle>
             <CardDescription>
@@ -153,18 +156,20 @@ export default function Index() {
                 type="submit"
                 className="flex-grow"
                 onClick={() => {
-                  disasters = disasterRef.filter((disaster) => {
-                    let pass = true;
-                    if (dname != "") {
-                      if (!RegExp(disaster.name, "i").test(disaster.name))
-                        pass = false;
-                    }
-                    if (dtype != "any type" && dtype != "") {
-                      if (disaster.typeId != dtype) pass = false;
-                      else console.log("oop");
-                    }
-                    return pass;
-                  });
+                  setDisasters(
+                    disasterRef.filter((disaster) => {
+                      let pass = true;
+                      if (dname != "") {
+                        if (!RegExp(disaster.name, "i").test(disaster.name))
+                          pass = false;
+                      }
+                      if (dtype != "any type" && dtype != "") {
+                        if (disaster.typeId != dtype) pass = false;
+                        else console.log("oop");
+                      }
+                      return pass;
+                    })
+                  );
                 }}
               >
                 Filter results
