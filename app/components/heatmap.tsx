@@ -9,6 +9,7 @@ import {
   Source,
 } from "react-map-gl";
 import { Theme, useTheme } from "remix-themes";
+import { Button } from "./ui/button";
 
 interface HeatmapProps {
   token: string;
@@ -195,6 +196,16 @@ export default function Heatmap(props: HeatmapProps) {
             <h3 className="text-lg">{popupInfo.name}</h3>
             <p className="text-sm">{popupInfo.date.toLocaleDateString()}</p>
             <p className="text-sm">Type: {popupInfo.typeId}</p>
+            <p className="text-sm">Intensity: {popupInfo.intensity}</p>
+            <Button
+              size="sm"
+              variant="destructive"
+              onClick={() => {
+                window.location.href = `/delete/${popupInfo.id}`;
+              }}
+            >
+              Delete
+            </Button>
           </Popup>
         )}
         {props.children}

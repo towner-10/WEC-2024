@@ -1,5 +1,5 @@
 import { json, LinksFunction, type MetaFunction } from "@remix-run/node";
-import { useLoaderData, useNavigate } from "@remix-run/react";
+import { useLoaderData } from "@remix-run/react";
 import Heatmap from "~/components/heatmap";
 import mapboxStyles from "mapbox-gl/dist/mapbox-gl.css";
 import { Button } from "~/components/ui/button";
@@ -51,11 +51,11 @@ export async function loader() {
 
 export default function Index() {
   const data = useLoaderData<typeof loader>();
-  const navigate = useNavigate();
   const [dname, setdname] = useState("");
   const [dtype, setdtype] = useState("");
   const [disasters, setDisasters] = useState<Disaster[]>([]);
 
+  // Convert date strings to Date objects
   const disasterRef: Disaster[] = data.disasters.map((disaster) => {
     return {
       id: disaster.id,
@@ -176,7 +176,10 @@ export default function Index() {
               </Button>
             </CardFooter>
           </Card>
-          <Button className="w-full" onClick={() => navigate("/new")}>
+          <Button
+            className="w-full"
+            onClick={() => (window.location.href = "/new")}
+          >
             Add a new event
           </Button>
         </div>
