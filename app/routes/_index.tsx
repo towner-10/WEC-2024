@@ -3,7 +3,6 @@ import { useLoaderData } from "@remix-run/react";
 import Heatmap from "~/components/heatmap";
 import mapboxStyles from "mapbox-gl/dist/mapbox-gl.css";
 import { Button } from "~/components/ui/button";
-import { format } from "date-fns";
 import {
   Card,
   CardContent,
@@ -28,8 +27,7 @@ import { useState } from "react";
 import { ModeToggle } from "~/components/mode-toggle";
 import { cn } from "~/lib/utils";
 import { Slider } from "~/components/ui/slider";
-import { Popover, PopoverContent, PopoverTrigger } from "@radix-ui/react-popover";
-import { Calendar } from "~/components/ui/calendar";
+import DatePicker from "~/components/date-picker";
 
 export const meta: MetaFunction = () => {
   return [
@@ -204,29 +202,7 @@ export default function Index() {
                 </div>
               </div>
               <Label>Date</Label>
-              <div className="flex space-x-4 items-center">
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant={"outline"}
-                      className={cn(
-                        "w-[240px] justify-start text-left font-normal",
-                        !ddate && "text-muted-foreground"
-                      )}
-                    >
-                      {ddate ? format(ddate, "PPP") : <span>Pick a date</span>}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={ddate}
-                      onSelect={setddate}
-                      initialFocus
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
+              <DatePicker ddate={ddate} setddate={setddate} />
             </CardContent>
             <CardFooter className="flex justify-between gap-4">
               <Button
@@ -237,7 +213,8 @@ export default function Index() {
                     disasterRef.filter((disaster) => {
                       let pass = true;
                       if (dname != "") {
-                        if (!RegExp(dname, "i").test(disaster.name)) pass = false;
+                        if (!RegExp(dname, "i").test(disaster.name))
+                          pass = false;
                       }
 
                       if (dtype != "any type" && dtype != "") {
