@@ -14,9 +14,9 @@ model Disaster {
   id        String       @id @default(uuid())
   name      String
   dType     DisasterType @relation(fields: [typeId], references: [typeName])
-  typeId    String       @unique
-  longitude Decimal
-  latitude  Decimal
+  typeId    String
+  longitude Float
+  latitude  Float
   date      DateTime     @default(now())
   intensity Int
 }

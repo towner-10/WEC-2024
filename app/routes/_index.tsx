@@ -21,7 +21,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
-import { Slider } from "~/components/ui/slider";
+import FilterSlider from "~/components/filter-slider";
+
 
 export const meta: MetaFunction = () => {
   return [
@@ -96,7 +97,7 @@ export default function Index() {
               </div>
               <Label>Intensity</Label>
               <div className="flex space-x-4">
-                <Slider defaultValue={[5]} max={10} step={1} />
+                <FilterSlider />
                 {/* TODO: Add text for the slider value and remove placeholder */}
                 <h3>2</h3>
               </div>

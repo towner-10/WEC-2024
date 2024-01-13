@@ -10,6 +10,7 @@
     "start": "remix-serve ./build/index.js",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
+    "load-csv": "node ./helpers/script.cjs",
     "typecheck": "tsc"
   },
   "dependencies": {
@@ -23,8 +24,10 @@
     "@remix-run/react": "^2.5.0",
     "@remix-run/serve": "^2.5.0",
     "@types/mapbox-gl": "^2.7.19",
+    "child_process": "^1.0.2",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
+    "csv-parser": "^3.0.0",
     "isbot": "^4.1.0",
     "lucide-react": "^0.309.0",
     "mapbox-gl": "^3.0.1",
