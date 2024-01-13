@@ -9,7 +9,7 @@ interface FilterSliderProps {
 }
 
 export default function FilterSlider(props: FilterSliderProps) {
-  const [value, setValue] = useState<number[]>([0, 10]);
+  const [value, setValue] = useState<number[]>([5]);
 
   return (
     <div
@@ -20,11 +20,11 @@ export default function FilterSlider(props: FilterSliderProps) {
     >
       <div className="flex-grow">
         <Slider
-          defaultValue={[0, 10]}
+          defaultValue={[5]}
           max={10}
+          min={0}
           step={1}
-          value={value}
-          onValueCommit={setValue}
+          onValueCommit={(val)=>{setValue(val);}}
         />
       </div>
       <h3 className="flex-shrink-0 w-8 pl-2">{value}</h3>
