@@ -113,7 +113,7 @@ export default function Heatmap(props: HeatmapProps) {
         initialViewState={{
           longitude: -122.4,
           latitude: 37.8,
-          zoom: 2,
+          zoom: 0.1,
         }}
         mapStyle={
           theme === Theme.LIGHT
