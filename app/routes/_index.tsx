@@ -23,7 +23,7 @@ import {
 } from "~/components/ui/select";
 import prisma from "~/lib/db.server";
 import { Disaster } from "@prisma/client";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { ModeToggle } from "~/components/mode-toggle";
 import { cn } from "~/lib/utils";
 import { Slider } from "~/components/ui/slider";
@@ -35,17 +35,23 @@ export const meta: MetaFunction = () => {
   ];
 };
 
-function getDistanceFromLatLonInKm(lat1: number, lon1: number, lat2: number, lon2: number) {
-  var R = 6371; // Radius of the earth in km
-  var dLat = deg2rad(lat2 - lat1);  // deg2rad below
-  var dLon = deg2rad(lon2 - lon1);
-  var a =
+function getDistanceFromLatLonInKm(
+  lat1: number,
+  lon1: number,
+  lat2: number,
+  lon2: number
+) {
+  const R = 6371; // Radius of the earth in km
+  const dLat = deg2rad(lat2 - lat1); // deg2rad below
+  const dLon = deg2rad(lon2 - lon1);
+  const a =
     Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
-    Math.sin(dLon / 2) * Math.sin(dLon / 2)
-    ;
-  var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  var d = R * c; // Distance in km
+    Math.cos(deg2rad(lat1)) *
+      Math.cos(deg2rad(lat2)) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  const d = R * c; // Distance in km
   return d;
 }
 
@@ -74,8 +80,7 @@ export default function Index() {
   const [dtype, setdtype] = useState("");
   const [dregion, setdregion] = useState(["", "", ""]);
   const [dintensity, setdintensity] = useState(0);
-  const [ddate, setddate] = useState("");
-  const [disasters, setDisasters] = useState<Disaster[]>([]);
+  const [ddate] = useState("");
 
   // Convert date strings to Date objects
   const disasterRef: Disaster[] = data.disasters.map((disaster) => {
@@ -90,9 +95,7 @@ export default function Index() {
     };
   });
 
-  useEffect(() => {
-    setDisasters(disasterRef);
-  }, [disasterRef]);
+  const [disasters, setDisasters] = useState<Disaster[]>(disasterRef);
 
   return (
     <>
@@ -111,7 +114,7 @@ export default function Index() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {data.MAPBOX_TOKEN && data.disasters && (
+            {data.MAPBOX_TOKEN && disasters && (
               <Heatmap token={data.MAPBOX_TOKEN} disasters={disasters} />
             )}
           </CardContent>
@@ -156,27 +159,45 @@ export default function Index() {
               </Select>
               <Label>Region</Label>
               <div className="flex space-x-4">
-                <Input placeholder="Lat. (°)" onChange={(e) => setdregion([Number.parseFloat(e.target.value), dregion[1], dregion[2]])} />
-                <Input placeholder="Long. (°)" onChange={(e) => setdregion([dregion[0], Number.parseFloat(e.target.value), dregion[2]])} />
-                <Input placeholder="Radius (km)" onChange={(e) => setdregion([dregion[0], dregion[1], Number.parseFloat(e.target.value)])} />
+                <Input
+                  placeholder="Lat. (°)"
+                  onChange={(e) =>
+                    setdregion([e.target.value, dregion[1], dregion[2]])
+                  }
+                />
+                <Input
+                  placeholder="Long. (°)"
+                  onChange={(e) =>
+                    setdregion([dregion[0], e.target.value, dregion[2]])
+                  }
+                />
+                <Input
+                  placeholder="Radius (km)"
+                  onChange={(e) =>
+                    setdregion([dregion[0], dregion[1], e.target.value])
+                  }
+                />
               </div>
               <Label>Intensity</Label>
-              <div className="flex space-x-4"><div
-                className={cn(
-                  "flex flex-row w-full items-center justify-between",
-                )}
-              >
-                <div className="flex-grow">
-                  <Slider
-                    defaultValue={[0]}
-                    max={10}
-                    min={0}
-                    step={1}
-                    onValueChange={e => setdintensity(e[0])}
-                  />
+              <div className="flex space-x-4">
+                <div
+                  className={cn(
+                    "flex flex-row w-full items-center justify-between"
+                  )}
+                >
+                  <div className="flex-grow">
+                    <Slider
+                      defaultValue={[0]}
+                      max={10}
+                      min={0}
+                      step={1}
+                      onValueChange={(e) => setdintensity(e[0])}
+                    />
+                  </div>
+                  <h3 className="flex-shrink-0 w-8 pl-2">
+                    {dintensity == 0 ? "off" : dintensity}
+                  </h3>
                 </div>
-                <h3 className="flex-shrink-0 w-8 pl-2">{dintensity == 0 ? "off" : dintensity}</h3>
-              </div>
               </div>
               <Label>Date</Label>
               <div className="flex space-x-4 items-center">
@@ -204,21 +225,33 @@ export default function Index() {
                         if (disaster.typeId != dtype) pass = false;
                       }
 
-                      if (dregion.reduce((pval, cval) => {
-                        if (!pval || cval == "") { return false }
-                        else return true
-                      }, true)) {
-                        if (getDistanceFromLatLonInKm(Number(dregion[0]), Number(dregion[1]), disaster.latitude, disaster.longitude) > Number.parseFloat(dregion[2])) pass = false;
+                      if (
+                        dregion.reduce((pval, cval) => {
+                          if (!pval || cval == "") {
+                            return false;
+                          } else return true;
+                        }, true)
+                      ) {
+                        if (
+                          getDistanceFromLatLonInKm(
+                            Number(dregion[0]),
+                            Number(dregion[1]),
+                            disaster.latitude,
+                            disaster.longitude
+                          ) > Number.parseFloat(dregion[2])
+                        )
+                          pass = false;
                       }
 
                       if (dintensity != 0) {
-                        if (dintensity != Number(disaster.intensity)) pass = false
+                        if (dintensity != Number(disaster.intensity))
+                          pass = false;
                       }
 
                       if (ddate != "") {
                         if (new Date(ddate) != disaster.date) {
-                          pass = false
-                        } else console.log('a')
+                          pass = false;
+                        } else console.log("a");
                       }
 
                       return pass;
