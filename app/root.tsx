@@ -17,7 +17,9 @@ import {
 import { themeSessionResolver } from "./sessions.server";
 import clsx from "clsx";
 
-export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
+export const links: LinksFunction = () => [
+  { rel: "stylesheet", href: styles },
+];
 
 // Return the theme from the session storage using the loader
 export async function loader({ request }: LoaderFunctionArgs) {

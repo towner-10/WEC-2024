@@ -1,9 +1,7 @@
-import {
-  json,
-  type MetaFunction,
-} from "@remix-run/node";
+import { json, LinksFunction, type MetaFunction } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import Heatmap from "~/components/heatmap";
+import mapboxStyles from "mapbox-gl/dist/mapbox-gl.css";
 import { Button } from "~/components/ui/button";
 import {
   Card,
@@ -21,6 +19,10 @@ export const meta: MetaFunction = () => {
   ];
 };
 
+export const links: LinksFunction = () => [
+  { rel: "stylesheet", href: mapboxStyles },
+];
+
 export async function loader() {
   return json({
     MAPBOX_TOKEN: process.env.MAPBOX_TOKEN,
@@ -31,7 +33,7 @@ export default function Index() {
   const data = useLoaderData<typeof loader>();
 
   return (
-    <div>
+    <>
       <header>
         <h1>Welcome to the Tempests App!</h1>
       </header>
@@ -63,6 +65,6 @@ export default function Index() {
           <Button className="w-full">New Event</Button>
         </div>
       </div>
-    </div>
+    </>
   );
 }

@@ -1,4 +1,5 @@
 import { Map } from "react-map-gl";
+import { Theme, useTheme } from "remix-themes";
 
 interface HeatmapProps {
   token: string;
@@ -6,17 +7,26 @@ interface HeatmapProps {
 }
 
 export default function Heatmap(props: HeatmapProps) {
+  const [theme] = useTheme();
+
   return (
-    <Map
-      mapboxAccessToken={props.token}
-      initialViewState={{
-        longitude: -122.4,
-        latitude: 37.8,
-        zoom: 14,
-      }}
-      style={{ width: 600, height: 400 }}
-      mapStyle="mapbox://styles/mapbox/streets-v9"
-      attributionControl={false}
-    />
+    <div className="h-[400px]">
+      <Map
+        mapboxAccessToken={props.token}
+        initialViewState={{
+          longitude: -122.4,
+          latitude: 37.8,
+          zoom: 14,
+        }}
+        mapStyle={
+          theme === Theme.LIGHT
+            ? "mapbox://styles/mapbox/light-v10"
+            : "mapbox://styles/mapbox/dark-v10"
+        }
+        attributionControl={false}
+      >
+        {props.children}
+      </Map>
+    </div>
   );
 }
