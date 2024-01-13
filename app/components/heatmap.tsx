@@ -1,5 +1,5 @@
 import { Disaster } from "@prisma/client";
-import { HeatmapLayer, Layer, Map, Source } from "react-map-gl";
+import { CircleLayer, HeatmapLayer, Layer, Map, Source } from "react-map-gl";
 import { Theme, useTheme } from "remix-themes";
 
 interface HeatmapProps {
@@ -9,6 +9,46 @@ interface HeatmapProps {
 }
 
 const MAX_ZOOM_LEVEL = 9;
+
+const circleLayer: CircleLayer = {
+  id: "circle",
+  minzoom: MAX_ZOOM_LEVEL - 1,
+  type: "circle",
+  paint: {
+    // Size circle radius by earthquake magnitude and zoom level
+    "circle-radius": [
+      "interpolate",
+      ["linear"],
+      ["zoom"],
+      MAX_ZOOM_LEVEL - 1,
+      ["interpolate", ["linear"], ["get", "intensity"], 1, 1, 6, 4],
+      16,
+      ["interpolate", ["linear"], ["get", "intensity"], 1, 5, 6, 50],
+    ],
+    // Color circle by earthquake magnitude
+    "circle-color": [
+      "interpolate",
+      ["linear"],
+      ["get", "intensity"],
+      1,
+      "rgba(33,102,172,0)",
+      2,
+      "rgb(103,169,207)",
+      4,
+      "rgb(209,229,240)",
+      5,
+      "rgb(253,219,199)",
+      7,
+      "rgb(239,138,98)",
+      10,
+      "rgb(178,24,43)",
+    ],
+    "circle-stroke-color": "white",
+    "circle-stroke-width": 1,
+    // Transition from heatmap to circle layer by zoom level
+    "circle-opacity": ["interpolate", ["linear"], ["zoom"], 7, 0, 8, 1],
+  },
+};
 
 const heatmapLayer: HeatmapLayer = {
   id: "heatmap",
@@ -99,6 +139,7 @@ export default function Heatmap(props: HeatmapProps) {
           }}
         >
           <Layer {...heatmapLayer} />
+          <Layer {...circleLayer} />
         </Source>
         {props.children}
       </Map>
