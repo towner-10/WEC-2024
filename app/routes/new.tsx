@@ -1,71 +1,117 @@
-import { ActionFunctionArgs, redirect } from "@remix-run/node";
-import { Form } from "@remix-run/react";
+import { useState } from "react";
 import { Button } from "~/components/ui/button";
+import { format, parse, set } from "date-fns";
+import { cn } from "~/lib/utils";
+import { Calendar } from "~/components/ui/calendar";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter} from "~/components/ui/card";
 import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-  CardFooter,
-} from "~/components/ui/card";
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+  } from "~/components/ui/popover"
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { Slider } from "~/components/ui/slider";
 
-export async function action({ request }: ActionFunctionArgs) {
-  const body = await request.formData();
-
-  console.log(body.get("name"));
-
-  return redirect("/");
-}
-
 export default function New() {
-  return (
-    <>
-      <h1>Add a new event to track</h1>
-      <Card className="flex-grow mt-8">
-        <CardHeader>
-          <CardTitle>Event information</CardTitle>
-          <CardDescription>
-            Enter the key details about the event
-          </CardDescription>
-        </CardHeader>
-        <Form method="post">
-          <CardContent className="flex flex-col space-y-4">
-            <Label>Name</Label>
-            <Input name="name" placeholder='For example, "Mount St. Helens"' />
-            <Label>Type</Label>
-            <Input name="type" placeholder='For example, "Mudslide"' />
-            <Label>Location</Label>
-            <div className="flex space-x-4">
-              <Input name="lat" placeholder="Latitude (°)" />
-              <Input name="lng" placeholder="Longitude (°)" />
-            </div>
-            <Label>Intensity</Label>
-            <div className="flex space-x-4">
-              <Slider defaultValue={[5]} max={10} step={1} />
-              {/* TODO: Add text for the slider value and remove placeholder */}
-              <h3>2</h3>
-            </div>
-            <Label>Date</Label>
-            <div className="flex space-x-4 items-center">
-              <Input name="month" placeholder="MM" />
-              <h3>/</h3>
-              <Input name="day" placeholder="DD" />
-              <h3>/</h3>
-              <Input name="year" placeholder="YYYY" />
-            </div>
-          </CardContent>
-          <CardFooter className="flex justify-between">
-            <Button type="reset" variant="secondary">
-              Clear inputs
-            </Button>
-            <Button type="submit">Submit event</Button>
-          </CardFooter>
-        </Form>
-      </Card>
-    </>
-  );
+    const [statusMsg, setStatusMsg] = useState("");
+    const [name, setName] = useState("");
+    const [type, setType] = useState("");
+    const [latitude, setLatitude] = useState("");
+    const [longitude, setLongitude] = useState("");
+    const [intensity, setIntensity] = useState([5]);
+    const [date, setDate] = useState<Date>();
+
+    const handleSubmit = () => {
+        setStatusMsg(""); 
+
+        //Input validation
+        if (!name || !type || !latitude || !longitude || !intensity || !date) {
+            setStatusMsg("Please fill out all fields");
+            return;
+        }
+
+        if (isNaN(Number(latitude)) || isNaN(Number(longitude))) {
+            setStatusMsg("Latitude and longitude must be numbers");
+            return;
+        }
+
+        if (Number(latitude) < -90 || Number(latitude) > 90) {
+            setStatusMsg("Latitude must be between -90 and 90");
+            return;
+        }
+
+        if (Number(longitude) < -180 || Number(longitude) > 180) {
+            setStatusMsg("Longitude must be between -180 and 180");
+            return;
+        }
+
+        const newEvent = {
+            name,
+            type,
+            latitude: Number(latitude),
+            longitude: Number(longitude),
+            intensity: Number(intensity),
+            date
+        };
+
+        console.log(newEvent);
+    };
+    
+    return (
+        <>
+            <h1>Add a new event to track</h1>
+            <Card className="flex-grow mt-8">
+                <CardHeader>
+                    <CardTitle>Event information</CardTitle>
+                    <CardDescription>Enter the key details about the event</CardDescription>
+                </CardHeader>
+                <CardContent className="flex flex-col space-y-4">
+                    <Label>Name</Label>
+                    <Input name='name' value={name} onChange={(e) => setName(e.target.value)} placeholder='For example, "Mount St. Helens"' />
+                    <Label>Type</Label>
+                    <Input name='type' value={type} onChange={(e) => setType(e.target.value)} placeholder='For example, "Mudslide"' />
+                    <Label>Location</Label>
+                    <div className="flex space-x-4">
+                        <Input name='lat' value={latitude} onChange={(e) => setLatitude(e.target.value)} placeholder="Latitude (°)" />
+                        <Input name='long' value={longitude} onChange={(e) => setLongitude(e.target.value)} placeholder="Longitude (°)" />
+                    </div>
+                    <Label>Intensity</Label>
+                    <div className="flex space-x-4">
+                        <Slider name='intensity' value={intensity} onValueCommit={setIntensity} defaultValue={[5]} max={10} step={1} />
+                        {/* TODO: Add text for the slider value and remove placeholder */}
+                        <h3>2</h3>
+                    </div>
+                    <Popover>
+                        <PopoverTrigger asChild>
+                            <Button
+                            variant={"outline"}
+                            className={cn(
+                                "w-[240px] justify-start text-left font-normal",
+                                !date && "text-muted-foreground"
+                            )}
+                            >
+                            {date ? format(date, "PPP") : <span>Pick a date</span>}
+                            </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar
+                            mode="single"
+                            selected={date}
+                            onSelect={setDate}
+                            initialFocus
+                            />
+                        </PopoverContent>
+                        </Popover>
+                </CardContent>
+                <CardFooter className="flex justify-between">
+                    <Button onClick={handleSubmit}>Submit event</Button>
+                </CardFooter>
+                {statusMsg && <h2 className="flex justify-center pb-4 text-red-500">
+                    {statusMsg}
+                </h2>}
+
+            </Card>
+        </>
+    );
 }
