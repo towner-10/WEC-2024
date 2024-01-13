@@ -1,5 +1,5 @@
 import { json, LinksFunction, type MetaFunction } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import { useLoaderData, useNavigate } from "@remix-run/react";
 import Heatmap from "~/components/heatmap";
 import mapboxStyles from "mapbox-gl/dist/mapbox-gl.css";
 import { Button } from "~/components/ui/button";
@@ -47,6 +47,7 @@ export async function loader() {
 
 export default function Index() {
   const data = useLoaderData<typeof loader>();
+  const navigate = useNavigate();
 
   const disasters: Disaster[] = data.disasters.map((disaster) => {
     return {
@@ -63,14 +64,14 @@ export default function Index() {
   return (
     <>
       <header>
-        <h1>Tempests</h1>
+        <h1>Tempest <span className="font-light">Tracker</span></h1>
       </header>
       <div className="h-full p-4 grid grid-cols-4 gap-4">
         <Card className="col-span-3 h-full">
           <CardHeader>
             <CardTitle>Event Heatmap</CardTitle>
             <CardDescription>
-              Natural disaster events at a glance.
+              Natural disaster events at a glance
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -128,7 +129,7 @@ export default function Index() {
               <Button className="flex-grow">Filter results</Button>
             </CardFooter>
           </Card>
-          <Button className="w-full">Add a new event</Button>
+          <Button className="w-full" onClick={() => navigate('/new')}>Add a new event</Button>
         </div>
       </div>
     </>
