@@ -1,5 +1,5 @@
 import { json, LinksFunction, type MetaFunction } from "@remix-run/node";
-import { Form, useLoaderData, useNavigate } from "@remix-run/react";
+import { useLoaderData, useNavigate } from "@remix-run/react";
 import Heatmap from "~/components/heatmap";
 import mapboxStyles from "mapbox-gl/dist/mapbox-gl.css";
 import { Button } from "~/components/ui/button";
@@ -25,6 +25,7 @@ import FilterSlider from "~/components/filter-slider";
 import prisma from "~/lib/db.server";
 import { Disaster } from "@prisma/client";
 import { useState } from "react";
+import { ModeToggle } from "~/components/mode-toggle";
 
 export const meta: MetaFunction = () => {
   return [
@@ -70,8 +71,11 @@ export default function Index() {
 
   return (
     <>
-      <header>
-        <h1>Tempest <span className="font-light">Tracker</span></h1>
+      <header className="flex flex-row justify-between items-center">
+        <h1>
+          Tempest <span className="font-light">Tracker</span>
+        </h1>
+        <ModeToggle />
       </header>
       <div className="h-full p-4 grid grid-cols-4 gap-4">
         <Card className="col-span-3 h-full">
@@ -95,25 +99,33 @@ export default function Index() {
             </CardHeader>
             <CardContent className="flex flex-col space-y-4">
               <Label>Name</Label>
-              <Input id='disastername' placeholder='For example, "Hurricane Dave"' onChange={(e) => setdname(e.target.value)} />
+              <Input
+                id="disastername"
+                placeholder='For example, "Hurricane Dave"'
+                onChange={(e) => setdname(e.target.value)}
+              />
               <Label>Type</Label>
-              <Select onValueChange={(e) => { setdtype(e) }}>
-                <SelectTrigger className="w-[180px]" >
-                  <SelectValue placeholder="any type"/>
+              <Select
+                onValueChange={(e) => {
+                  setdtype(e);
+                }}
+              >
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="any type" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
-                    {
-                      data.disasterTypes.map((disType) => {
-                        return (<>
-                          <SelectItem value={disType.typeName}>{disType.typeName}
+                    {data.disasterTypes.map((disType) => {
+                      return (
+                        <>
+                          <SelectItem value={disType.typeName}>
+                            {disType.typeName}
                           </SelectItem>
-                        </>);
-                      })
-                    }
+                        </>
+                      );
+                    })}
 
-                    <SelectItem value="any type">any type
-                    </SelectItem>
+                    <SelectItem value="any type">any type</SelectItem>
                   </SelectGroup>
                 </SelectContent>
               </Select>
@@ -137,23 +149,33 @@ export default function Index() {
               </div>
             </CardContent>
             <CardFooter className="flex justify-between gap-4">
-              <Button type='submit' className="flex-grow" onClick={() => {
-                disasters = disasterRef.filter((disaster) => {
-                  let pass = true;
-                  if (dname != "") {
-                    if (!RegExp(disaster.name, "i").test(disaster.name)) pass = false;
-                  }
-                  if (dtype != "any type" && dtype != "") {
-                    if (disaster.typeId != dtype) pass = false;
-                    else console.log("oop")
-                  }
-                });
-              }}>Filter results</Button>
+              <Button
+                type="submit"
+                className="flex-grow"
+                onClick={() => {
+                  disasters = disasterRef.filter((disaster) => {
+                    let pass = true;
+                    if (dname != "") {
+                      if (!RegExp(disaster.name, "i").test(disaster.name))
+                        pass = false;
+                    }
+                    if (dtype != "any type" && dtype != "") {
+                      if (disaster.typeId != dtype) pass = false;
+                      else console.log("oop");
+                    }
+                    return pass;
+                  });
+                }}
+              >
+                Filter results
+              </Button>
             </CardFooter>
           </Card>
-          <Button className="w-full" onClick={() => navigate('/new')}>Add a new event</Button>
+          <Button className="w-full" onClick={() => navigate("/new")}>
+            Add a new event
+          </Button>
         </div>
-      </div >
+      </div>
     </>
   );
 }

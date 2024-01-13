@@ -1,5 +1,13 @@
 import { Disaster } from "@prisma/client";
-import { CircleLayer, HeatmapLayer, Layer, Map, Source } from "react-map-gl";
+import { useState } from "react";
+import {
+  CircleLayer,
+  HeatmapLayer,
+  Layer,
+  Map,
+  Popup,
+  Source,
+} from "react-map-gl";
 import { Theme, useTheme } from "remix-themes";
 
 interface HeatmapProps {
@@ -105,6 +113,7 @@ const heatmapLayer: HeatmapLayer = {
 
 export default function Heatmap(props: HeatmapProps) {
   const [theme] = useTheme();
+  const [popupInfo, setPopupInfo] = useState<Disaster | null>(null);
 
   return (
     <div className="h-[400px]">
@@ -115,14 +124,41 @@ export default function Heatmap(props: HeatmapProps) {
           latitude: 37.8,
           zoom: 0.1,
         }}
+        interactiveLayerIds={[circleLayer.id]}
         mapStyle={
           theme === Theme.LIGHT
             ? "mapbox://styles/mapbox/light-v10"
             : "mapbox://styles/mapbox/dark-v10"
         }
         attributionControl={false}
+        onClick={(event) => {
+          // Find the tweet that was clicked and check if it is a point
+          const { features } = event;
+
+          console.log(features);
+          if (features !== undefined && features.length > 0) {
+            if (
+              features[0].geometry.type === "Point" &&
+              features[0].properties !== null
+            ) {
+              // If it is a point, set the popup info
+              const disaster: Disaster = {
+                longitude: Number(features[0].geometry.coordinates[0]),
+                latitude: Number(features[0].geometry.coordinates[1]),
+                intensity: Number(features[0].properties.intensity),
+                name: features[0].properties.name,
+                id: features[0].properties.id,
+                typeId: features[0].properties.typeId,
+                date: new Date(features[0].properties.date),
+              };
+
+              setPopupInfo(disaster);
+            } else setPopupInfo(null);
+          } else setPopupInfo(null);
+        }}
       >
         <Source
+          id="disasters"
           type="geojson"
           data={{
             type: "FeatureCollection",
@@ -133,7 +169,11 @@ export default function Heatmap(props: HeatmapProps) {
                 coordinates: [disaster.longitude, disaster.latitude],
               },
               properties: {
+                id: disaster.id,
+                name: disaster.name,
                 intensity: disaster.intensity,
+                typeId: disaster.typeId,
+                date: disaster.date,
               },
             })),
           }}
@@ -141,6 +181,19 @@ export default function Heatmap(props: HeatmapProps) {
           <Layer {...heatmapLayer} />
           <Layer {...circleLayer} />
         </Source>
+        {popupInfo && (
+          <Popup
+            longitude={Number(popupInfo.longitude)}
+            latitude={Number(popupInfo.latitude)}
+            anchor="bottom"
+            closeOnClick={true}
+            onClose={() => setPopupInfo(null)}
+          >
+            <h3 className="text-lg">{popupInfo.name}</h3>
+            <p className="text-sm">{popupInfo.date.toLocaleDateString()}</p>
+            <p className="text-sm">Type: {popupInfo.typeId}</p>
+          </Popup>
+        )}
         {props.children}
       </Map>
     </div>
