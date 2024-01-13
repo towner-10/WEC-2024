@@ -1,5 +1,5 @@
 import { json, LinksFunction, type MetaFunction } from "@remix-run/node";
-import { useLoaderData, useNavigate } from "@remix-run/react";
+import { Form, useLoaderData, useNavigate } from "@remix-run/react";
 import Heatmap from "~/components/heatmap";
 import mapboxStyles from "mapbox-gl/dist/mapbox-gl.css";
 import { Button } from "~/components/ui/button";
@@ -24,6 +24,7 @@ import {
 import FilterSlider from "~/components/filter-slider";
 import prisma from "~/lib/db.server";
 import { Disaster } from "@prisma/client";
+import { useState } from "react";
 
 export const meta: MetaFunction = () => {
   return [
@@ -38,18 +39,22 @@ export const links: LinksFunction = () => [
 
 export async function loader() {
   const disasters = await prisma.disaster.findMany();
+  const disasterTypes = await prisma.disasterType.findMany();
 
   return json({
     MAPBOX_TOKEN: process.env.MAPBOX_TOKEN,
     disasters,
+    disasterTypes,
   });
 }
 
 export default function Index() {
   const data = useLoaderData<typeof loader>();
   const navigate = useNavigate();
+  const [dname, setdname] = useState("");
+  const [dtype, setdtype] = useState("");
 
-  const disasters: Disaster[] = data.disasters.map((disaster) => {
+  const disasterRef: Disaster[] = data.disasters.map((disaster) => {
     return {
       id: disaster.id,
       date: new Date(disaster.date),
@@ -60,6 +65,8 @@ export default function Index() {
       longitude: disaster.longitude,
     };
   });
+
+  let disasters: Disaster[] = disasterRef.filter(() => true);
 
   return (
     <>
@@ -88,17 +95,24 @@ export default function Index() {
             </CardHeader>
             <CardContent className="flex flex-col space-y-4">
               <Label>Name</Label>
-              <Input placeholder='For example, "Hurricane Dave"' />
+              <Input id='disastername' placeholder='For example, "Hurricane Dave"' onChange={(e) => setdname(e.target.value)} />
               <Label>Type</Label>
-              <Select>
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Select an event type" />
+              <Select onValueChange={(e) => { setdtype(e) }}>
+                <SelectTrigger className="w-[180px]" >
+                  <SelectValue placeholder="any type"/>
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
-                    {/* TODO: Replace with unique list of types from database */}
-                    <SelectItem value="placeholder">
-                      Placeholder (REPLACE THIS!)
+                    {
+                      data.disasterTypes.map((disType) => {
+                        return (<>
+                          <SelectItem value={disType.typeName}>{disType.typeName}
+                          </SelectItem>
+                        </>);
+                      })
+                    }
+
+                    <SelectItem value="any type">any type
                     </SelectItem>
                   </SelectGroup>
                 </SelectContent>
@@ -123,15 +137,23 @@ export default function Index() {
               </div>
             </CardContent>
             <CardFooter className="flex justify-between gap-4">
-              <Button className="flex-grow" variant="secondary">
-                Reset filters
-              </Button>
-              <Button className="flex-grow">Filter results</Button>
+              <Button type='submit' className="flex-grow" onClick={() => {
+                disasters = disasterRef.filter((disaster) => {
+                  let pass = true;
+                  if (dname != "") {
+                    if (!RegExp(disaster.name, "i").test(disaster.name)) pass = false;
+                  }
+                  if (dtype != "any type" && dtype != "") {
+                    if (disaster.typeId != dtype) pass = false;
+                    else console.log("oop")
+                  }
+                });
+              }}>Filter results</Button>
             </CardFooter>
           </Card>
           <Button className="w-full" onClick={() => navigate('/new')}>Add a new event</Button>
         </div>
-      </div>
+      </div >
     </>
   );
 }
